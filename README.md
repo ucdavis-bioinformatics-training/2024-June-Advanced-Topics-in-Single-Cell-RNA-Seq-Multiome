@@ -39,4 +39,4 @@ If you have any questions, please don’t hesitate to contact us at [training.bi
 
 ### Register
 
-[Register for Single Cell RNA-Seq at the Genome Center Event Registration site.](https://registration.genomecenter.ucdavis.edu/events/organizer/bioinformatics_core/)
+[Register for Advanced Topics in Single Cell RNA-Seq ATAC at the Genome Center Event Registration site.](https://registration.genomecenter.ucdavis.edu/events/organizer/bioinformatics_core/)
