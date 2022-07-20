@@ -1,10 +1,10 @@
 All documentation for the workshop is best viewed from the github.io pages
 
-[Documentation](https://ucdavis-bioinformatics-training.github.io/2022-July-Single-Cell-RNA-Seq-Analysis/)
+[Documentation](https://ucdavis-bioinformatics-training.github.io/2022-July-Advanced-Topics-in-Single-Cell-RNA-Seq-ATAC/)
 
-Single Cell RNA-Seq Analysis
+Advanced-Topics-in-Single-Cell-RNA-Seq-ATAC
 
-Jul.18, 2022 - Jul. 21, 2022, 9 a.m. - 5:00 p.m daily.
+Jul.21, 2022, 9 a.m. - 5:00 p.m.
 
 Contact - UC Davis Bioinformatics Core, [training.bioinformatics@ucdavis.edu](mailto:training.bioinformatics@ucdavis.edu)
 
@@ -12,7 +12,7 @@ This three-day online workshop covers experimental design, data generation, and 
 
 To get the most out of this course, please complete the prerequisite material in [command line](base/cli_prerequisites) and [R](base/r_prerequisites) before the course, and contact us with any questions.
 
-This workshop will be held online from 9:00 am to 5:00 pm each day.
+This workshop will be held online from 9:00 am to 5:00 pm.
 
 Participants will need access to a computer with a reliable connection to the internet, a current versions of [R version](https://cloud.r-project.org/) and [Rstudio](https://rstudio.com/products/rstudio/download/#download) installed, and an application that allows them to ssh into a server (e.g. Bash for Windows, or Terminal for Apple).
 
