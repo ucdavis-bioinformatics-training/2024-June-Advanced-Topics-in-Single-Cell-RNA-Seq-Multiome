@@ -1,5 +1,5 @@
 theme: jekyll-theme-minimal
-title: 'Single Cell ATAC-Seq Analysis'
+title: 'Advanced Topics in Single Cell RNA-Seq: scATAC Analysis'
 show_downloads: True
 google_analytics: True
 navigation:
@@ -40,7 +40,7 @@ navigation:
   - title: Data Reduction
     url: data_reduction/ATAC
   - title: Data Analysis
-    url: data_analysis/analysis
+    url: data_analysis/scATAC_analysis
 
 
   - heading: ETC

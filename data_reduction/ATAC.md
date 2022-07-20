@@ -41,7 +41,9 @@ For the purposes of this workshop, we are using a subset of this data; one sampl
 ### Workflow
 
 
-![workflow](figures/workflow.png)
+<div class="figure" style="text-align: center">
+<img src="figures/workflow.png" alt="scATAC" width="75%" />
+</div>
 
 
 # Data reduction
