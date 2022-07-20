@@ -38,9 +38,9 @@ navigation:
 
   - heading: scATAC
   - title: Data Reduction
-    url: data_reduction/project_setup
+    url: data_reduction/ATAC
   - title: Data Analysis
-    url: data_reduction/Expression_Matrix
+    url: data_analysis/analysis
 
 
   - heading: ETC

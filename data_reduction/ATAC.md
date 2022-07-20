@@ -38,7 +38,10 @@ In this study, single nuclei transcriptome and chromatin accessibility profiles 
 For the purposes of this workshop, we are using a subset of this data; one sample per condition (CRC: A001-C-007, polyp: A001-C-104, and normal: B001-A-301).
 
 
-![sample summary](./figures/sample.summary.png)
+### Workflow
+
+
+![workflow](figures/workflow.png)
 
 
 # Data reduction
@@ -75,9 +78,6 @@ Before getting started, we need to make sure that we have the cellranger-atac so
 ```bash
 wget -O cellranger-atac-2.1.0.tar.gz "https://cf.10xgenomics.com/releases/cell-atac/cellranger-atac-2.1.0.tar.gz?Expires=1658147185&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jZi4xMHhnZW5vbWljcy5jb20vcmVsZWFzZXMvY2VsbC1hdGFjL2NlbGxyYW5nZXItYXRhYy0yLjEuMC50YXIuZ3oiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE2NTgxNDcxODV9fX1dfQ__&Signature=jbfFoycsgaQ1gvDsz7-7gerjd9cW1YqTgSjS7XT8hQzIqTLPunC6YbblGiYTkOlF6tzlpAfvy78ntmf7T0NbMkm~hdrFxZXa-nya0JqIdewj8v4jwaEL7b9OikhzcutA6li2agcHUXKz89Ilx99Z-OMo~mmM-4NPvWitmgalmxRT5tBXZ~MqDYeScnIpGz-6BfKPqRN6EoIzEiLBOW2jrgcADkiotPM13qL-5h-gW6cdw46sF93lWt5-hrWTooUac2ao1BzVMTzdA4IN9To0SFGjZ0oCTp~HS-q9aqpZZ8Od1AXX56dhBVxtKe023HDE~2OIN7i4Baql88NBTZVHXA__&Key-Pair-Id=APKAI7S6A5RYOXBWRPDA"
 ```
-
-### Workflow
-
 
 ### Reference
 
@@ -154,13 +154,21 @@ There are a *lot* of files created in the output folder, including:
 
 *cellranger-atac aggr* provides one option of analyzing multiple scATAC-Seq datasets, with limited types of analyses. What it takes is a config file that specifies the *fragments.tsv.gz* and *singlecell.csv* results from each dataset.
 
+library_id,fragments,cells
+A001-C-007,A001-C-007/outs/fragments.tsv.gz,A001-C-007/outs/singlecell.csv
+A001-C-104,A001-C-104/outs/fragments.tsv.gz,A001-C-104/outs/singlecell.csv
+B001-A-301,B001-A-301/outs/fragments.tsv.gz,B001-A-301/outs/singlecell.csv
 
-Cell Ranger Multi requires a little bit more set-up in the form of a config file, described [here](https://support.10xgenomics.com/single-cell-vdj/software/pipelines/latest/using/multi#examples).
 
-The Multi configuration file (not a true CSV) describes the locations of the references and libraries for the experiment. Use a command line text editor to create a file called "Pool1_multi.csv" containing the required information.
-
-When you have the config file, you can launch cellranger multi:
-
+```bash
+cellranger-atac aggr \
+  --id=combined \
+  --csv=config.csv \
+  --reference=refdata-cellranger-arc-GRCh38-2020-A-2.0.0 \
+  --localcores=4 \
+  --normalize=none \
+  --dim-reduce=lsa \
+  --localmem=4
 ```
-cellranger multi --id=Pool1_VDJ --csv=Pool1_multi.csv
-```
+
+
