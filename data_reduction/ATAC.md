@@ -156,10 +156,12 @@ There are a *lot* of files created in the output folder, including:
 
 *cellranger-atac aggr* provides one option of analyzing multiple scATAC-Seq datasets, with limited types of analyses. What it takes is a config file that specifies the *fragments.tsv.gz* and *singlecell.csv* results from each dataset.
 
+```
 library_id,fragments,cells
 A001-C-007,A001-C-007/outs/fragments.tsv.gz,A001-C-007/outs/singlecell.csv
 A001-C-104,A001-C-104/outs/fragments.tsv.gz,A001-C-104/outs/singlecell.csv
 B001-A-301,B001-A-301/outs/fragments.tsv.gz,B001-A-301/outs/singlecell.csv
+```
 
 
 ```bash
