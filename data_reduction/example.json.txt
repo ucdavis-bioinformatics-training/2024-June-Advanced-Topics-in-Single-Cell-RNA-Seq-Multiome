@@ -1,0 +1,8 @@
+{
+    organism: "human"
+    genome: ["GRCh38"]
+    input_fasta: ["/path/to/GRCh38/assembly.fa"]
+    input_gtf: ["/path/to/gencode/annotation.gtf"]
+    non_nuclear_contigs: ["chrM"]
+    input_motifs: "/path/to/jaspar/motifs.pfm"
+}

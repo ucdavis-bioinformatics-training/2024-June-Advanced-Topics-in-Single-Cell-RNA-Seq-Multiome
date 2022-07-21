@@ -91,16 +91,8 @@ There are prebuilt human and mouse reference packages for use with Cell Ranger A
 * Annotation gtf
 * Optional, transcription factor binding motif in position frequency matrices ([JASPAR](https://jaspar.genereg.net/))
 
-Config file to specify the custom references:
+Config file to specify the custom references follows [this example](example.json.txt)
 
-{
-    organism: "human"
-    genome: ["GRCh38"]
-    input_fasta: ["/path/to/GRCh38/assembly.fa"]
-    input_gtf: ["/path/to/gencode/annotation.gtf"]
-    non_nuclear_contigs: ["chrM"]
-    input_motifs: "/path/to/jaspar/motifs.pfm"
-}
 
 The following code will generate a reference with cellranger-atac mkref. This takes a while, and is not used in this workshop. When using this code, please ensure that your FASTA and GTF files are appropriate versions, downloading up to date files as necessary.
 
