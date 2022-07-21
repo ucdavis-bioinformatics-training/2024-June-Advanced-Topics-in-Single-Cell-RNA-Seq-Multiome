@@ -167,4 +167,10 @@ cellranger-atac aggr \
   --localmem=4
 ```
 
+### Download the analysis Rmd file for the next section
+
+```
+wget https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-July-Advanced-Topics-in-Single-Cell-RNA-Seq-ATAC/main/data_analysis/scATAC_analysis.Rmd
+```
+
 
