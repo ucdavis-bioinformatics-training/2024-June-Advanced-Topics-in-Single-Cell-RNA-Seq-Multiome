@@ -167,6 +167,11 @@ cellranger-atac aggr \
   --localmem=4
 ```
 
+The results for the full dataset is in /share/workshop/scATAC_workshop/cellranger.outs/
+
+On your local laptop/desktop, please create a project directory where you will do the rest of the analysis in. Please download the fragments.tsv.gz to your local laptop and keep the data structure. For example, having a directory structure like A001-C-007/outs/fragments.tsv.gz.
+
+
 ### Download the analysis Rmd file for the next section
 
 ```
