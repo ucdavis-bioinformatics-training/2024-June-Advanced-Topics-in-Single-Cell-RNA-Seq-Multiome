@@ -22,11 +22,11 @@ Our team offers custom bioinformatics services to academic and private organizat
 
 * Computing Issues, include but not limited to user account questions, equipment failure/malfunction, software install, software failures (not related to use).
 
-   [helpdesk@genomecenter.ucdavis.edu](mailto:helpdesk@genomecenter.ucdavis.edu)
+   [hpc-help@ucdavis.edu](mailto:hpc-help@ucdavis.edu)
 
 ## Structure of the Workshops
 
-Given the current Covid19 pandemic, we've decided to provide a hybrid format to our workshop. Our intent is to offer as much opportunity as possible to everyone who is interested in our workshop. We will hold the same goals and strive for a similar lecture/hand-on ratio. We will be using multiple technologies in order to help facilitate a maximum amount of interaction.
+Since Covid19 pandemic, we've provide hybrid format to our workshop, as well as fully online workshops. Our intent is to offer as much opportunity as possible to everyone who is interested in our workshop. We will hold the same goals and strive for a similar lecture/hand-on ratio. We will be using multiple technologies in order to help facilitate a maximum amount of interaction.
 
 #### Zoom
 
@@ -49,7 +49,7 @@ Text based communication will be conducted via a Slack channel. Staff will be mo
 
 #### Patience
 
-We ask for a little more patience as this process is also new to us, but we are committed to providing you the best educational experience we can (under the current conditions).
+We ask for a little more patience as there is a wide background in workshop participants, but we are committed to providing you the best educational experience we can.
 
 ### Workshop Goals
 

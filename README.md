@@ -1,14 +1,14 @@
 All documentation for the workshop is best viewed from the github.io pages
 
-[Documentation](https://ucdavis-bioinformatics-training.github.io/2022-July-Advanced-Topics-in-Single-Cell-RNA-Seq-ATAC/)
+[Documentation](https://ucdavis-bioinformatics-training.github.io/2024-June-Advanced-Topics-in-Single-Cell-RNA-Seq-Multiome/)
 
-Advanced-Topics-in-Single-Cell-RNA-Seq-ATAC
+Advanced-Topics-in-Single-Cell-RNA-Seq-Multiome
 
-Jul.21, 2022, 9 a.m. - 5:00 p.m.
+Jun.13, 2022, 9 a.m. - 5:00 p.m.
 
 Contact - UC Davis Bioinformatics Core, [training.bioinformatics@ucdavis.edu](mailto:training.bioinformatics@ucdavis.edu)
 
-This three-day online workshop covers experimental design, data generation, and analysis of single cell RNA sequencing data. Participants will explore a single cell experiment using the command line and R, create and modify workflows, and diagnose and treat problematic data utilizing high performance computing services. The primary packages used for analysis will be 10x software for sequence reads to counts, and the R package Seurat for downstream analysis.
+This three-day online workshop covers experimental design, data generation, and analysis of single cell multiome data (scRNASeq + scATACSeq). Participants will explore a single cell experiment using the command line and R, create and modify workflows, and diagnose and treat problematic data utilizing high performance computing services. The primary packages used for analysis will be 10x software for sequence reads to counts, and the R package Seurat for downstream analysis.
 
 To get the most out of this course, please complete the prerequisite material in [command line](base/cli_prerequisites) and [R](base/r_prerequisites) before the course, and contact us with any questions.
 
@@ -26,7 +26,7 @@ Participants will need access to a computer with a reliable connection to the in
 
 **Can I bring my own data?** … We will provide datasets for use during the workshop, as this helps to keep the workshop moving. There will be time, however, to discuss your own datasets and how you might work with them outside of the workshop.
 
-**How much does it cost?** … The registration fee is $1,500 for current students, postdocs, staff and faculty at Univeristy of California campus' or UC National Labs (LBNL, LANL, LLNL), $1,750 for other academic or non-profit participants and $2,500 for other participants. We accept credit cards, as well as UC Davis recharge accounts, for payment.
+**How much does it cost?** … The registration fee is $500 for current students, postdocs, staff and faculty at Univeristy of California campus' or UC National Labs (LBNL, LANL, LLNL), $700 for other academic or non-profit participants and $1,000 for other participants. We accept credit cards, as well as UC Davis recharge accounts, for payment.
 
 **How do I apply?** … All registration is “first-come, first-served”. There is no application process.  So, sign up as soon as possible to ensure your place in the workshop.
 
@@ -39,4 +39,4 @@ If you have any questions, please don’t hesitate to contact us at [training.bi
 
 ### Register
 
-[Register for Advanced Topics in Single Cell RNA-Seq ATAC at the Genome Center Event Registration site.](https://registration.genomecenter.ucdavis.edu/events/organizer/bioinformatics_core/)
+[Register for Advanced Topics in Single Cell RNA-Seq Multiome at the Genome Center Event Registration site.](https://registration.genomecenter.ucdavis.edu/events/organizer/bioinformatics_core/)
