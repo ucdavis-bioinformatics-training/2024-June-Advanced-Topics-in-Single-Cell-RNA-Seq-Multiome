@@ -36,9 +36,9 @@ navigation:
   - title: R
     url: base/r_prerequisites
 
-  - heading: scATAC
+  - heading: single cell multiome
   - title: Data Reduction
-    url: data_reduction/ATAC
+    url: data_reduction/multiome
   - title: Data Analysis
     url: data_analysis/scATAC_analysis
 
