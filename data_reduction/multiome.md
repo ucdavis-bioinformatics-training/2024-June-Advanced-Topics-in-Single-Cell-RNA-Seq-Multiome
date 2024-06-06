@@ -21,6 +21,8 @@
   <img src="figures/readrna.png" width="50%">
 </p>
 
+The recommended sequencing depth is 25K/nucleus for ATAC libraries, and 20K/nucleus for gene expression libraries.
+
 # Chromatin accessibility profiling with 10X
 
 10x Genomics provides genome-wide profiling of chromatin accessibilities at single cell resolution.
@@ -42,22 +44,15 @@
 
 
 
-The recommended sequencing depth for single cell ATAC libraries is 25K - 50K reads per cell, three orders of magnitude less than the recommended sequencing depth for bulk ATAC libraries.
+The recommended sequencing depth for single cell ATAC libraries is 25K reads per cell, three orders of magnitude less than the recommended sequencing depth for bulk ATAC libraries.
 
 # Example data set
 
-The data set we will be using in this workshop is from a [recent study](https://doi.org/10.1038/s41588-022-01088-x):
+The data set we will be using in this workshop is an example dataset from [10X](https://www.10xgenomics.com/library/3557ae)
 
-Becker, W. R.; Nevins, S. A.; Chen, D. C.; Chiu, R.; Horning, A. M.; Guha, T. K.; Laquindanum, R.; Mills, M.; Chaib, H.; Ladabaum, U.; Longacre, T.; Shen, J.; Esplin, E. D.; Kundaje, A.; Ford, J. M.; Curtis, C.; Snyder, M. P.; Greenleaf, W. J. Single-Cell Analyses Define a Continuum of Cell State and Composition Changes in the Malignant Transformation of Polyps to Colorectal Cancer. Nat. Genet. 2022. https://doi.org/10.1038/s41588-022-01088-x.
+In this study, single nuclei transcriptome and chromatin accessibility profiles were generated from a patient diagnosed with diffuse small lymphocytic lymphoma of the lymph node. The nucleus sequenced are from intra-abdominal lymph node tumor.
 
-In this study, single nuclei transcriptome and chromatin accessibility profiles were generated from 1000 to 10000 cells per sample from 48 polys, 27 normal tissues and 6 colorectal cancer (CRC) patients with or without germline APC mutations. It observed a continuum of cell state and composition changes from normal tissue to polys to cancer.
-
-<div class="figure" style="text-align: center">
-<img src="figures/sample.summary.png" alt="scATAC" width="80%" />
-</div>
-
-
-For the purposes of this workshop, we are using a subset of this data; one sample per condition (CRC: A001-C-007, polyp: A001-C-104, and normal: B001-A-301).
+For the purposes of this workshop, we are using a subset of this data for data reduction. The full dataset will be used at the data analysis stage.
 
 
 ### Workflow
