@@ -11,7 +11,7 @@
 3. **GEM generation and barcoding** Transposed single nuclei suspension are partitioned in emulsion oil that contains gel beads inside Chromium Controller. Within each GEM, DNA and RNA fragments are captured and barcoded. Afterwards, the barcoded DNA and RNA fragments are pre-amplified and splitted to ATAC and gene expression libraries.
 4. **Library construction** ATAC and gene expression libraries are generated following separate protocols and sequenced.
 
-![](figures/libprep1.png "Workflow" =80%x) ![](figures/libprep2.png "Barcodes" =20%x)
+![workflow](figures/libprep1.png "Workflow" =80%x) ![GEM](figures/libprep2.png "Gel beads" =20%x)
 
 # Chromatin accessibility profiling with 10X
 
