@@ -12,9 +12,8 @@
 4. **Library construction** ATAC and gene expression libraries are generated following separate protocols and sequenced.
 
 <p align="center">
-  <img src="figures/libprep1.png" width="76%"> 
-$nbsp;$nbsp;$nbsp;
-  <img src="figures/libprep2.png" width="18%">
+  <img src="figures/libprep1.png" width="65%"> 
+  <img src="figures/libprep2.png" width="30%">
 </p>
 
 # Chromatin accessibility profiling with 10X
