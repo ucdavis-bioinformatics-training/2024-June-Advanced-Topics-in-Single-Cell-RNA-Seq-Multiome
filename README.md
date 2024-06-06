@@ -4,7 +4,7 @@ All documentation for the workshop is best viewed from the github.io pages
 
 Advanced-Topics-in-Single-Cell-RNA-Seq-Multiome
 
-Jun.13, 2022, 9 a.m. - 5:00 p.m.
+Jun.13, 2024, 9 a.m. - 5:00 p.m.
 
 Contact - UC Davis Bioinformatics Core, [training.bioinformatics@ucdavis.edu](mailto:training.bioinformatics@ucdavis.edu)
 
