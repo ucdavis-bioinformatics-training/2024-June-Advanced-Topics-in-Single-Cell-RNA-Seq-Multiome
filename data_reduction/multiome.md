@@ -4,14 +4,18 @@
 
 ## Library preparation
 
-[10X multiome library preparation](https://www.10xgenomics.com/support/single-cell-multiome-atac-plus-gene-expression/documentation/steps/sample-prep) proceeds in stages:
+[10X multiome library preparation](https://www.10xgenomics.com/support/single-cell-multiome-atac-plus-gene-expression/documentation/steps/sample-prep) proceeds in 4 stages:
 
 1. **single nuclei isolation** Tissues undergo nuclei isolation using Chromium Nuclei Isolation Kit (optimized for frozen tissues) or other nuclei isolation protocols. Please refer to 10X documentation for guidance, cell lines/PBMCs, complex tissues.
 2. **Tn5 Transposation** Tn5 transposase mix is applied to the single nuclei suspension created in the first step to fragment the DNA in the open chromatin regions.
 3. **GEM generation and barcoding** Transposed single nuclei suspension are partitioned in emulsion oil that contains gel beads inside Chromium Controller. Within each GEM, DNA and RNA fragments are captured and barcoded. Afterwards, the barcoded DNA and RNA fragments are pre-amplified and splitted to ATAC and gene expression libraries.
 4. **Library construction** ATAC and gene expression libraries are generated following separate protocols and sequenced.
 
-![workflow](figures/libprep1.png "Workflow" =80%x) ![GEM](figures/libprep2.png "Gel beads" =20%x)
+<p align="center">
+  <img src="figures/libprep1.png" width="76%"> 
+$nbsp;$nbsp;$nbsp;
+  <img src="figures/libprep2.png" width="18%">
+</p>
 
 # Chromatin accessibility profiling with 10X
 
