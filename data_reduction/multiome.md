@@ -16,6 +16,11 @@
   <img src="figures/libprep2.png" width="30%">
 </p>
 
+<p align="center">
+  <img src="figures/readatac.png" width="40%"> 
+  <img src="figures/readrna.png" width="50%">
+</p>
+
 # Chromatin accessibility profiling with 10X
 
 10x Genomics provides genome-wide profiling of chromatin accessibilities at single cell resolution.
