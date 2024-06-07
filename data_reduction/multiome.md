@@ -46,7 +46,7 @@ The recommended sequencing depth is 25K/nucleus for ATAC libraries, and 20K/nucl
 
 The recommended sequencing depth for single cell ATAC libraries is 25K reads per cell, three orders of magnitude less than the recommended sequencing depth for bulk ATAC libraries.
 
-# Example data set
+# Example data set for cellranger processing
 
 The data set we will be using in this workshop is an example dataset from [10X](https://www.10xgenomics.com/library/3557ae)
 
@@ -68,8 +68,8 @@ For the purposes of this workshop, we are using a subset of this data for data r
 Log into tadpole and navigate to your directory on the /share/workshop space.
 
 ```bash
-mkdir -p /share/workshop/scATAC_workshop/$USER
-cd /share/workshop/scATAC_workshop/$USER
+mkdir -p /share/workshop/scMultiome_workshop/$USER
+cd /share/workshop/scMultiome_workshop/$USER
 ```
 Request an interactive session from the scheduler so that we are not competing for resources on the head node.
 
@@ -82,68 +82,77 @@ srun -t 1-00:00:00 -c 4 -n 1 --mem 16000 --partition production --account worksh
 ### Reads
 
 ```bash
-mkdir -p /share/workshop/scATAC_workshop/$USER/00-RawData
-cd /share/workshop/scATAC_workshop/$USER/00-RawData
-ln -s /share/workshop/scATAC_workshop/Data/*.fastq.gz .
+mkdir -p /share/workshop/scMultiome_workshop/$USER/00-RawData
+cd /share/workshop/scMultiome_workshop/$USER/00-RawData
+ln -s /share/workshop/scMultiome_workshop/Data/fastqs/* .
 ```
 ### Software
 
-Before getting started, we need to make sure that we have the cellranger-atac software in our path. This can be done one of three ways:
+Before getting started, we need to make sure that we have the cellranger-arc software in our path. This can be done one of three ways:
 
-1. Module load: `module load cellranger`. This will only work on a cluster with modules for software management.
-2. Add the location of a previously downloaded cellranger build to our path: `export PATH=/share/workshop/scRNA_workshop/software/cellranger-atac.2.1.0/bin:$PATH`. This will not work if you don't have a copy of cellranger somewhere on the system.
-3. Download cellranger-atac in the current directory:
+1. Module load: `module load cellranger-arc`. This will only work on a cluster with modules for software management.
+2. Add the location of a previously downloaded cellranger-arc build to our path: `export PATH=/share/workshop/scMultiome_workshop/software/cellranger-arc.2.0.2/bin:$PATH`. This will not work if you don't have a copy of cellranger somewhere on the system.
+3. Download cellranger-arc to the current directory and add to our path:
 
 ```bash
-wget -O cellranger-atac-2.1.0.tar.gz "https://cf.10xgenomics.com/releases/cell-atac/cellranger-atac-2.1.0.tar.gz?Expires=1658147185&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jZi4xMHhnZW5vbWljcy5jb20vcmVsZWFzZXMvY2VsbC1hdGFjL2NlbGxyYW5nZXItYXRhYy0yLjEuMC50YXIuZ3oiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkFXUzpFcG9jaFRpbWUiOjE2NTgxNDcxODV9fX1dfQ__&Signature=jbfFoycsgaQ1gvDsz7-7gerjd9cW1YqTgSjS7XT8hQzIqTLPunC6YbblGiYTkOlF6tzlpAfvy78ntmf7T0NbMkm~hdrFxZXa-nya0JqIdewj8v4jwaEL7b9OikhzcutA6li2agcHUXKz89Ilx99Z-OMo~mmM-4NPvWitmgalmxRT5tBXZ~MqDYeScnIpGz-6BfKPqRN6EoIzEiLBOW2jrgcADkiotPM13qL-5h-gW6cdw46sF93lWt5-hrWTooUac2ao1BzVMTzdA4IN9To0SFGjZ0oCTp~HS-q9aqpZZ8Od1AXX56dhBVxtKe023HDE~2OIN7i4Baql88NBTZVHXA__&Key-Pair-Id=APKAI7S6A5RYOXBWRPDA"
+wget -O cellranger-arc-2.0.2.tar.gz "https://cf.10xgenomics.com/releases/cell-arc/cellranger-arc-2.0.2.tar.gz?Expires=1717764022&Key-Pair-Id=APKAI7S6A5RYOXBWRPDA&Signature=FeS1kaI45GNpT0Fm9teqDF-52N1lYqwCW3vSFWn5jWC03R3-wFWH1DWdS~hmd4o5g8-dTlSU7vXAQUeS6g9rqPewfSa~HvgnGduSvKp4PjKT~XuXJyMu7q3GbcQlT2eoxjP3oRqNuZwPj6qIXtk5~8nP5nBBTS2vbFySuc02ltrsXCJlPW0~V0Vvur0Ml3mWjuNVj7W0cngGsBKmd3DaeYOMt3KFFHUp-iVl39K2LJEBAS2SYobnEaHjzhFsKCCqCK--~-2d3ZF4~qUxPppTEdQiYSAfTUuW6rzDgBLn6xENVXYxJDF9qB8dglI3f~TzYDRasvSgPUJVFkhNsu109w__"
+tar -xzvf cellranger-arc-2.0.2.tar.gz
 ```
 
 ### Reference
 
-There are prebuilt human and mouse reference packages for use with Cell Ranger ATAC, which we will be using in this workshop. For other species, or to create a custom reference, one can use *cellranger-atac mkref*.
+There are prebuilt human and mouse reference packages for use with Cell Ranger ARC, which we will be using in this workshop. For other species, or to create a custom reference, one can use *cellranger-arc mkref*.
 
-#### cellranger-atac mkref
+#### cellranger-arc mkref
 
 * Reference genome fasta (single species, primary assembly)
-* Annotation gtf
+* Annotation gtf: should be filtered properly to remove low confidence features and to reduce the number of reads that map to overlapping regions of two genes
 * Optional, transcription factor binding motif in position frequency matrices ([JASPAR](https://jaspar.genereg.net/))
 
-Config file to specify the custom references follows [this example](example.json.txt)
+Config file to specify the custom references follows [this example](example.json.txt). The reference generated using _cellranger-arc mkref_ can be used for cellranger, cellranger-atac, cellranger-arc.
 
 
 The following code will generate a reference with cellranger-atac mkref. This takes a while, and is not used in this workshop. When using this code, please ensure that your FASTA and GTF files are appropriate versions, downloading up to date files as necessary.
 
 ```bash
-cd /share/workshop/scATAC_workshop/$USER
-cellranger-atac mkref \
+cd /share/workshop/scMultiome_workshop/$USER
+cellranger-arc mkref \
    --config=path/to/config
 ```
 
-Additional instructions for building ATAC references can be found [here](https://support.10xgenomics.com/single-cell-atac/software/release-notes/references#GRCh38-2020-A-2.0.0).
+Additional instructions for building ARC references can be found [here](https://www.10xgenomics.com/support/software/cell-ranger-arc/latest/analysis/inputs/mkref).
 
 #### Downloading prebuilt Cell Ranger reference
 
 Since we are working with human data in this workshop, let's download the prebuilt reference.
 
 ```bash
-cd /share/workshop/scATAC_workshop/$USER/
-curl -O https://cf.10xgenomics.com/supp/cell-atac/refdata-cellranger-arc-GRCh38-2020-A-2.0.0.tar.gz
+cd /share/workshop/scMultiome_workshop/$USER/
+wget "https://cf.10xgenomics.com/supp/cell-arc/refdata-cellranger-arc-GRCh38-2020-A-2.0.0.tar.gz"
 tar -xzvf refdata-cellranger-arc-GRCh38-2020-A-2.0.0.tar.gz
 rm refdata-cellranger-arc-GRCh38-2020-A-2.0.0.tar.gz
 ```
 
-## Running cellranger-atac count
+## Running cellranger-arc count
 
-For experiments with ATAC libraries only, 10x recommends running `cellranger-atac count`, while `cellranger-arc count` allows gene expression, and ATAC libraries from the same experiment to be processed simultaneously. Detailed descriptions of [cellranger-arc count](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/pipelines/latest/using/count#count) and [cellranger-arc](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/pipelines/latest/what-is-cell-ranger-arc) can be found on the 10x website.
+For experiments with multiome libraries, `cellranger-arc count` allows gene expression, and ATAC libraries from the same experiment to be processed simultaneously. Detailed descriptions of [cellranger-arc count](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/pipelines/latest/using/count#count) and [cellranger-arc](https://support.10xgenomics.com/single-cell-multiome-atac-gex/software/pipelines/latest/what-is-cell-ranger-arc) can be found on the 10x website.
 
 ### Input
 
-The call to cellranger-atac count is simple:
+The call to cellranger-arc count requires a config file that provides the location of the fastq files for both the ATAC and gene expression libraries.
+
+| Column |      Description |
+|:---- |:--- |
+|fastqs      | Directory that holds fastq files. Generally, this will be the fastq_path folder generated by cellranger mkfastq. |
+| sample |     The Illumina sample name. Generally, this will be as specified in the sample sheet supplied to mkfastq or bcl2fastq. |
+| library_type | A description for the corresponding library type. |
+
 
 ```bash
-cellranger-atac count \
+cellranger-arc count \
     --id=sampleID \
     --fastqs=00-RawData \
+    --libraries=${cwd}/config.csv \
     --sample=sampleID \
     --reference=refdata-cellranger-arc-GRCh38-2020-A-2.0.0
 ```
@@ -153,28 +162,28 @@ cellranger-atac count \
 There are a *lot* of files created in the output folder, including:
 
 * web_summary.html - similar to gene expression
-* summary.csv - similar to gene expression
-* filtered_peak_bc_matrix - similar to gene expression
-* filtered_tf_bc_matrix - similar to gene expression
-* peak_annotation.tsv
-* fragments.tsv.gz - peak barcode table
-* singlecell.csv - barcodes summary
-* BAMs - alignment files
+* summary.csv - run summary metrics, similar to gene expression
+* filtered_feature_bc_matrix - gene expression and ATAC peak features
+* gex_molecule_info.h5 - GEX Per molecule information
+* atac_fragment.tsv.gz - atac fragment information
+* atac_peaks.bed - atac peak locations
+* atac_cut_sites.bigwig - ATAC smoothed transposition site track
+* atac_peak_annotaion.tsv - ATAC peak annotations based on proximal genes
+* BAMs - alignment files for ATAC and GEX
 
-## Running cellranger-atac aggr
+## Running cellranger-arc aggr
 
-*cellranger-atac aggr* provides one option of analyzing multiple scATAC-Seq datasets, with limited types of analyses. What it takes is a config file that specifies the *fragments.tsv.gz* and *singlecell.csv* results from each dataset.
+*cellranger-arc aggr* provides one option of analyzing scATAC-Seq libraries from multiple datasets, with limited types of analyses.
 
 ```
-library_id,fragments,cells
-A001-C-007,A001-C-007/outs/fragments.tsv.gz,A001-C-007/outs/singlecell.csv
-A001-C-104,A001-C-104/outs/fragments.tsv.gz,A001-C-104/outs/singlecell.csv
-B001-A-301,B001-A-301/outs/fragments.tsv.gz,B001-A-301/outs/singlecell.csv
+library_id,atac_fragments,per_barcode_metrics,gex_molecule_info
+sample1,sample1/outs/fragments.tsv.gz,sample1/outs/per_barcode_metrics.csv,sample1/outs/gex_molecule_info.h5
+sample2,sample2/outs/fragments.tsv.gz,sample2/outs/per_barcode_metrics.csv,sample2/outs/gex_molecule_info.h5
 ```
 
 
 ```bash
-cellranger-atac aggr \
+cellranger-arc aggr \
   --id=combined \
   --csv=config.csv \
   --reference=refdata-cellranger-arc-GRCh38-2020-A-2.0.0 \
@@ -184,7 +193,7 @@ cellranger-atac aggr \
   --localmem=4
 ```
 
-The results for the full dataset is in /share/workshop/scATAC_workshop/cellranger.outs/
+We are going to use the cellranger-arc results from another data for further analysis, and they are inside /share/workshop/scMultiome_workshop/cellranger_outs/.
 
 On your local laptop/desktop, please create a project directory where you will do the rest of the analysis in. Please download the fragments.tsv.gz to your local laptop and keep the data structure. For example, having a directory structure like A001-C-007/outs/fragments.tsv.gz.
 
