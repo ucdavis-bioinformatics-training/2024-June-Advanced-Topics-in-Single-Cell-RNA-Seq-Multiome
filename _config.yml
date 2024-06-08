@@ -40,7 +40,7 @@ navigation:
   - title: Data Reduction
     url: data_reduction/multiome
   - title: Data Analysis
-    url: data_analysis/scATAC_analysis
+    url: data_analysis/scMultiome_analysis
 
 
   - heading: ETC

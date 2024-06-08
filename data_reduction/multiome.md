@@ -198,10 +198,22 @@ We are going to use the cellranger-arc results from another data for further ana
 On your local laptop/desktop, please create a project directory where you will do the rest of the analysis in. Please download the fragments.tsv.gz to your local laptop and keep the data structure. For example, having a directory structure like A001-C-007/outs/fragments.tsv.gz.
 
 
-### Download the analysis Rmd file for the next section
+### Download the analysis preparation Rmd file for the next section
 
 ```
-wget https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2022-July-Advanced-Topics-in-Single-Cell-RNA-Seq-ATAC/main/data_analysis/scATAC_analysis.Rmd
+wget https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2024-June-Single-Cell-RNA-Seq-Analysis/main/data_analysis/scMultiome_analysis_Part1.Rmd
+```
+
+### Download the cellranger-arc results for downstream analysis
+
+Please open another terminal on your laptop/desktop. Without logging into tadpole, create a folder for this workshop. Then go to this folder and download the cellranger outputs to it.
+
+```
+scp username@tadpole.genomecenter.ucdavis.edu:/share/workshop/scMultiome_workshop/cellranger_outs/atac_fragments.tsv.gz* .
+
+scp username@tadpole.genomecenter.ucdavis.edu:/share/workshop/scMultiome_workshop/cellranger_outs/filtered_feature_bc_matrix.h5 .
+
+scp username@tadpole.genomecenter.ucdavis.edu:/share/workshop/scMultiome_workshop/cellranger_outs/web_summary.html .
 ```
 
 

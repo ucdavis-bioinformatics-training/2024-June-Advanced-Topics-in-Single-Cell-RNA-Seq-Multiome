@@ -1,0 +1,137 @@
+---
+title: "Advance Topics in Single Cell RNA Seq: scMultiome analysis"
+author: "UCD Bioinformatics Core"
+output:
+    html_document:
+      keep_md: TRUE
+---
+
+
+# Introduction
+
+There are two types of single cell multiome (considering only gene expression and ATAC) experiments. One is to use single cell multiome kit from 10X and generate gene expression and ATAC libraries from the same cell. The other is to generate gene expression and ATAC libraries from different but same type of cells. The way to analyze these two types of multiome is different. We will start by looking at the experiments where the two sets of libraries are generated from the same cell. Then we will look at the second scenario. Both scenarios require that the scRNASeq data and scATACSeq data are processed separately first.
+
+
+<p align="center">
+  <img src="figures/flowchart2.png" width="85%"> 
+</p>
+
+
+# Install R packages and load the them for importing data to Seurat for QC
+
+
+```{r eval=F, echo=T}
+if (!requireNamespace("BiocManager", quietly = TRUE)){
+    install.packages("BiocManager")
+}
+
+if (!requireNamespace("Seurat", quietly = TRUE)){
+    install.packages("Seurat")
+}
+
+if (!requireNamespace("Signac", quietly = TRUE)){
+    BiocManager::install("Signac")
+}
+
+if (!requireNamespace("devtools", quietly = TRUE)){
+    install.packages("devtools")
+}
+
+if (!requireNamespace("SeuratData", quietly = TRUE)){
+    devtools::install_github("SeuratData")
+}
+
+if (!requireNamespace("SeuratData", quietly = TRUE)){
+    devtools::install_github("SeuratData")
+}
+
+if (!requireNamespace("AnnotationHub", quietly = TRUE)){
+    BiocManager::install("AnnotationHub")
+}
+
+if (!requireNamespace("HGNChelper", quietly = TRUE)){
+    BiocManager::install("HGNChelper")
+}
+
+if (!requireNamespace("kableExtra", quietly = TRUE)){
+    install.packages("kableExtra")
+}
+
+
+if (!requireNamespace("pheatmap", quietly = TRUE)){
+    install.packages("pheatmap")
+}
+
+## for motif analysis
+if (!requireNamespace("chromVAR", quietly = TRUE)){
+    BiocManager::install("chromVAR")
+}
+
+if (!requireNamespace("BSgenome.Hsapiens.UCSC.hg38", quietly = TRUE)){
+    BiocManager::install("BSgenome.Hsapiens.UCSC.hg38")
+}
+
+if (!requireNamespace("JASPAR2020", quietly = TRUE)){
+    BiocManager::install("JASPAR2020")
+}
+
+if (!requireNamespace("motifmatchr", quietly = TRUE)){
+    BiocManager::install("motifmatchr")
+}
+
+
+## for transcription factors analysis
+if (!requireNamespace("TFBSTools", quietly = TRUE)){
+    BiocManager::install("TFBSTools")
+}
+
+```
+
+
+```{r echo=T, message=F, warning=F}
+library(Seurat)
+library(Signac)
+library(AnnotationHub)
+```
+
+
+## Read in scRNASeq data
+
+```{r echo=T, message=F, warning=F}
+d10x <- Read10X_h5("filtered_feature_bc_matrix.h5")
+experiment.rna <- CreateSeuratObject(
+	d10x$`Gene Expression`,
+	min.cells = 0,
+	min.features = 0)
+```
+
+### Create some QC metrics and plot
+
+```{r echo=T, message=F, warning=F}
+experiment.rna$percent.mito <- PercentageFeatureSet(experiment.rna, pattern = "^MT-")
+RidgePlot(experiment.rna, features="percent.mito")
+RidgePlot(experiment.rna, features="nFeature_RNA")
+RidgePlot(experiment.rna, features="nCount_RNA")
+```
+
+### Doublet removal
+
+```{r echo=T, message=F, warning=F}
+experiment.rna <- subset(experiment.rna, nFeature_RNA >= 400 & nFeature_RNA <= 5000)
+experiment.rna <- subset(experiment.rna, nCount_RNA >= 1000 & nCount_RNA <= 12000)
+experiment.rna <- NormalizeData(experiment.rna, normalization.method = "LogNormalize", scale.factor = 10000)
+experiment.rna <- FindVariableFeatures(experiment.rna, selection.method = "vst", nfeatures = 2000)
+experiment.rna <- ScaleData(experiment.rna)
+experiment.rna <- RunPCA(experiment.rna)
+sweep.res <- paramSweep(experiment.rna, PCs = 1:20, sct = FALSE)
+sweep.stats <- summarizeSweep(sweep.res, GT = FALSE)
+bcmvn <- find.pK(sweep.stats)
+pK.set <- bcmvn$pK[which(bcmvn$BCmetric == max(bcmvn$BCmetric))]
+nExp_poi <- round(0.08 * nrow(experiment@meta.data))
+experiment.rna <- doubletFinder(experiment.rna, PCs = 1:20, pN = 0.25, pK = as.numeric(as.character(pK.set)), nExp = nExp_poi, reuse.pANN = FALSE, sct = FALSE)
+cls <- grep("DF.classifications", names(experiment.rna@meta.data))
+experiment.
+```
+
+
+
