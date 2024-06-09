@@ -13,7 +13,7 @@ There are two types of single cell multiome (considering only gene expression an
 
 
 <p align="center">
-  <img src="figures/flowchart2.png" width="85%"> 
+  <img src="../data_reduction/figures/flowchart2.png" width="85%"> 
 </p>
 
 
