@@ -95,7 +95,7 @@ Before getting started, we need to make sure that we have the cellranger-arc sof
 3. Download cellranger-arc to the current directory and add to our path:
 
 ```bash
-wget -O cellranger-arc-2.0.2.tar.gz "https://cf.10xgenomics.com/releases/cell-arc/cellranger-arc-2.0.2.tar.gz?Expires=1717764022&Key-Pair-Id=APKAI7S6A5RYOXBWRPDA&Signature=FeS1kaI45GNpT0Fm9teqDF-52N1lYqwCW3vSFWn5jWC03R3-wFWH1DWdS~hmd4o5g8-dTlSU7vXAQUeS6g9rqPewfSa~HvgnGduSvKp4PjKT~XuXJyMu7q3GbcQlT2eoxjP3oRqNuZwPj6qIXtk5~8nP5nBBTS2vbFySuc02ltrsXCJlPW0~V0Vvur0Ml3mWjuNVj7W0cngGsBKmd3DaeYOMt3KFFHUp-iVl39K2LJEBAS2SYobnEaHjzhFsKCCqCK--~-2d3ZF4~qUxPppTEdQiYSAfTUuW6rzDgBLn6xENVXYxJDF9qB8dglI3f~TzYDRasvSgPUJVFkhNsu109w__"
+wget -O cellranger-arc-2.0.2.tar.gz "https://cf.10xgenomics.com/releases/cell-arc/cellranger-arc-2.0.2.tar.gz?Expires=1718365082&Key-Pair-Id=APKAI7S6A5RYOXBWRPDA&Signature=kgwqjJ-xZv7YEXQVqCOgqSMe37sA40TspKfByqZ3raseybCLkm4NPWfA6pZWzSfKajzUdwI8lt67bH9TF2HGHF2qXLy5dniVehAiup-ZECQnArP~pjg-L607h8b4Id5cFZwSVH2ZN16JOlhGYl19v5yPZQZJbCDDQoiw62N~QdOcKkR-qeNrifU1sIH1k4GptBIDJDznu~dmKZs1RGaeJPOAUaFs1qWAVPJeRn2WaNUIuUnnAO6FrXWZr3gtqxtKMzY7f0qo5naBIelk3cjEmPNkTRvTlHgd940o-YVZi96lMzGISapxiCYIJ325nTTnWd7aEwLAPDuRfL38j4yTJA__"
 tar -xzvf cellranger-arc-2.0.2.tar.gz
 ```
 
