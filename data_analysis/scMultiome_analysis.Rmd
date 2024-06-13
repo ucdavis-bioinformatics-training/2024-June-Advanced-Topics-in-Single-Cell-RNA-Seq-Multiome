@@ -165,8 +165,6 @@ nExp_poi <- round(0.08 * nrow(experiment.rna@meta.data))
 experiment.rna <- doubletFinder(experiment.rna, PCs = 1:20, pN = 0.25, pK = as.numeric(as.character(pK.set)), nExp = nExp_poi, reuse.pANN = FALSE, sct = FALSE)
 cls <- grep("DF.classifications", names(experiment.rna@meta.data))
 counts <- sccounts[, match(colnames(experiment.rna)[experiment.rna@meta.data[cls]=="Singlet"], colnames(sccounts))]
-str(experiment.rna)
-str(counts)
 ```
 
 ### Standard scRNASeq data processing
