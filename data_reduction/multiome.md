@@ -151,9 +151,7 @@ The call to cellranger-arc count requires a config file that provides the locati
 ```bash
 cellranger-arc count \
     --id=sampleID \
-    --fastqs=00-RawData \
     --libraries=${cwd}/config.csv \
-    --sample=sampleID \
     --reference=refdata-cellranger-arc-GRCh38-2020-A-2.0.0
 ```
 

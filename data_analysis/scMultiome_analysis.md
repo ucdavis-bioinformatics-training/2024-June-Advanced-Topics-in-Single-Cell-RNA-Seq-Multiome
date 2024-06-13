@@ -40,7 +40,7 @@ if (!requireNamespace("devtools", quietly = TRUE)){
 
 
 if (!requireNamespace("SeuratData", quietly = TRUE)){
-    devtools::install_github("SeuratData")
+    devtools::install_github("satijalab/seurat-data")
 }
 
 if (!requireNamespace("SoupX", quietly = TRUE)){
