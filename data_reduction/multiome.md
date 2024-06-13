@@ -209,8 +209,8 @@ wget https://raw.githubusercontent.com/ucdavis-bioinformatics-training/2024-June
 Please open another terminal on your laptop/desktop. Without logging into tadpole, create a folder for this workshop. Then go to this folder and download the cellranger outputs to it.
 
 ```
-scp username@tadpole.genomecenter.ucdavis.edu:/share/workshop/scMultiome_workshop/cellranger_outs.zip .
-
+scp username@tadpole.genomecenter.ucdavis.edu:/share/workshop/scMultiome_workshop/Data/cellranger_outs.zip .
+scp username@tadpole.genomecenter.ucdavis.edu:/share/workshop/scMultiome_workshop/Data/*.rds .
 ```
 
 

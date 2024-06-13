@@ -9,11 +9,11 @@ output:
 
 # Introduction
 
-There are two types of single cell multiome (considering only gene expression and ATAC) experiments. One is to use single cell multiome kit from 10X and generate gene expression and ATAC libraries from the same cell. The other is to generate gene expression and ATAC libraries from different but same type of cells. The way to analyze these two types of multiome is different. We will start by looking at the experiments where the two sets of libraries are generated from the same cell. Then we will look at the second scenario. Both scenarios require that the scRNASeq data and scATACSeq data are processed separately first.
+There are two types of single cell multiome (considering only gene expression and ATAC) experiments. One is to use single cell multiome kit from 10X and generate gene expression and ATAC libraries from the same cell. The other is to generate gene expression and ATAC libraries from different but same type of cells. The way to analyze these two types of multiome is different. We will start by looking at the experiments where the two sets of libraries are generated from the same cell. Then we will look at the second scenario. Both scenarios require that the scRNASeq data and scATACSeq data are qced separately first.
 
 
 <p align="center">
-  <img src="figures/flowchart2.png" width="85%"> 
+  <img src="../data_reduction/figures/flowchart2.png" width="85%"> 
 </p>
 
 
@@ -37,16 +37,25 @@ if (!requireNamespace("devtools", quietly = TRUE)){
     install.packages("devtools")
 }
 
+
 if (!requireNamespace("SeuratData", quietly = TRUE)){
     devtools::install_github("SeuratData")
 }
 
-if (!requireNamespace("SeuratData", quietly = TRUE)){
-    devtools::install_github("SeuratData")
+if (!requireNamespace("SoupX", quietly = TRUE)){
+    install.packages("SoupX")
+}
+
+if (!requireNamespace("DoubletFinder", quietly = TRUE)){
+    devtools::install_github("chris-mcginnis-ucsf/DoubletFinder")
 }
 
 if (!requireNamespace("AnnotationHub", quietly = TRUE)){
     BiocManager::install("AnnotationHub")
+}
+
+if (!requireNamespace("biovizBase", quietly = TRUE)){
+    BiocManager::install("biovizBase")
 }
 
 if (!requireNamespace("HGNChelper", quietly = TRUE)){
@@ -57,48 +66,47 @@ if (!requireNamespace("kableExtra", quietly = TRUE)){
     install.packages("kableExtra")
 }
 
-
-if (!requireNamespace("pheatmap", quietly = TRUE)){
-    install.packages("pheatmap")
+if (!requireNamespace("BSgenome.Hsapiens.UCSC.hg38", quietly = TRUE)){
+    BiocManager::install("BSgenome.Hsapiens.UCSC.hg38")
 }
+
 
 ## for motif analysis
 if (!requireNamespace("chromVAR", quietly = TRUE)){
     BiocManager::install("chromVAR")
 }
 
-if (!requireNamespace("BSgenome.Hsapiens.UCSC.hg38", quietly = TRUE)){
-    BiocManager::install("BSgenome.Hsapiens.UCSC.hg38")
-}
 
 if (!requireNamespace("JASPAR2020", quietly = TRUE)){
     BiocManager::install("JASPAR2020")
 }
 
-if (!requireNamespace("motifmatchr", quietly = TRUE)){
-    BiocManager::install("motifmatchr")
-}
-
-
 ## for transcription factors analysis
 if (!requireNamespace("TFBSTools", quietly = TRUE)){
     BiocManager::install("TFBSTools")
 }
-
 ```
 
 
 ```{r echo=T, message=F, warning=F}
 library(Seurat)
-library(Signac)
-library(AnnotationHub)
+library(DoubletFinder)
+library(ggplot2)
 ```
 
+# Processing scRNASeq and scATAC data separately
 
-## Read in scRNASeq data
+Read in cellranger output.
 
 ```{r echo=T, message=F, warning=F}
-d10x <- Read10X_h5("filtered_feature_bc_matrix.h5")
+d10x <- Read10X_h5("cellranger_outs/filtered_feature_bc_matrix.h5")
+```
+
+## scRNASeq data processing
+
+### Read in scRNASeq data
+
+```{r echo=T, message=F, warning=F}
 experiment.rna <- CreateSeuratObject(
 	d10x$`Gene Expression`,
 	min.cells = 0,
@@ -110,14 +118,40 @@ experiment.rna <- CreateSeuratObject(
 ```{r echo=T, message=F, warning=F}
 experiment.rna$percent.mito <- PercentageFeatureSet(experiment.rna, pattern = "^MT-")
 RidgePlot(experiment.rna, features="percent.mito")
-RidgePlot(experiment.rna, features="nFeature_RNA")
-RidgePlot(experiment.rna, features="nCount_RNA")
+RidgePlot(experiment.rna, features="nFeature_RNA", log=TRUE)
+RidgePlot(experiment.rna, features="nCount_RNA", log=TRUE)
+```
+
+### Ambient RNA removal
+
+
+```{r echo=T, message=F, warning=F}
+library(SoupX)
+dat <- Read10X_h5("cellranger_outs/raw_feature_bc_matrix.h5")$`Gene Expression`
+datCells <- d10x$`Gene Expression`
+dat <- dat[rownames(dat),]
+clusters <- read.csv("cellranger_outs/analysis/clustering/gex/graphclust/clusters.csv")
+mDat <- data.frame(clusters = clusters$Cluster, row.names = clusters$Barcode)
+tsne <- read.csv("cellranger_outs/analysis/dimensionality_reduction/gex/tsne_projection.csv")
+mDat$tSNE1 <- tsne$TSNE.1[match(rownames(mDat), tsne$Barcode)]
+mDat$tSNE2 <- tsne$TSNE.2[match(rownames(mDat), tsne$Barcode)]
+DR <- c("tSNE1", "tSNE2")
+scdata <- SoupChannel(dat, datCells, mDat)
+scdata <- autoEstCont(scdata)
+sccounts <- adjustCounts(scdata)
+experiment.rna <- CreateSeuratObject(sccounts,
+	min.cells = 0,
+	min.features = 0)
+experiment.rna$percent.mito <- PercentageFeatureSet(experiment.rna, pattern = "^MT-")
+RidgePlot(experiment.rna, features="percent.mito")
+RidgePlot(experiment.rna, features="nFeature_RNA", log=TRUE) + geom_vline(xintercept = 8000)
+RidgePlot(experiment.rna, features="nCount_RNA", log=TRUE) + geom_vline(xintercept = 15000)
 ```
 
 ### Doublet removal
 
 ```{r echo=T, message=F, warning=F}
-experiment.rna <- subset(experiment.rna, nFeature_RNA >= 400 & nFeature_RNA <= 5000)
+experiment.rna <- subset(experiment.rna, nFeature_RNA >= 500 & nFeature_RNA <= 8000)
 experiment.rna <- subset(experiment.rna, nCount_RNA >= 1000 & nCount_RNA <= 12000)
 experiment.rna <- NormalizeData(experiment.rna, normalization.method = "LogNormalize", scale.factor = 10000)
 experiment.rna <- FindVariableFeatures(experiment.rna, selection.method = "vst", nfeatures = 2000)
@@ -127,11 +161,344 @@ sweep.res <- paramSweep(experiment.rna, PCs = 1:20, sct = FALSE)
 sweep.stats <- summarizeSweep(sweep.res, GT = FALSE)
 bcmvn <- find.pK(sweep.stats)
 pK.set <- bcmvn$pK[which(bcmvn$BCmetric == max(bcmvn$BCmetric))]
-nExp_poi <- round(0.08 * nrow(experiment@meta.data))
+nExp_poi <- round(0.08 * nrow(experiment.rna@meta.data))
 experiment.rna <- doubletFinder(experiment.rna, PCs = 1:20, pN = 0.25, pK = as.numeric(as.character(pK.set)), nExp = nExp_poi, reuse.pANN = FALSE, sct = FALSE)
 cls <- grep("DF.classifications", names(experiment.rna@meta.data))
-experiment.
+counts <- sccounts[, match(colnames(experiment.rna)[experiment.rna@meta.data[cls]=="Singlet"], colnames(sccounts))]
+str(experiment.rna)
+str(counts)
+```
+
+### Standard scRNASeq data processing
+
+```{r echo=T, message=F, warning=F, eval=F}
+experiment.aggregate <- CreateSeuratObject(counts)
+experiment.aggregate <- NormalizeData(experiment.aggregate, normalization.method = "LogNormalize", scale.factor = 10000)
+
+s.genes <- cc.genes.updated.2019$s.genes
+g2m.genes <- cc.genes.updated.2019$g2m.genes
+
+experiment.aggregate <- CellCycleScoring(experiment.aggregate,
+                                         s.features = s.genes,
+                                         g2m.features = g2m.genes,
+                                         set.ident = TRUE)
+
+experiment.aggregate <- ScaleData(experiment.aggregate,
+                                  vars.to.regress = c("S.Score", "G2M.Score", "nFeature_RNA"))
+
+saveRDS(experiment.aggregate, "scrna.rds")
+```
+
+## scATACSeq data processing
+
+
+```{r echo=T, message=F, warning=F}
+library(AnnotationHub)
+ah <- AnnotationHub()
+qr <- query(ah, c("Homo sapiens", "EnsDb", "GRCh38"))
+edb <- qr[[1]]
+library(Signac)
+library(biovizBase)
+
+atac_counts <- d10x$Peaks
+grange.counts <- StringToGRanges(rownames(atac_counts), sep=c(":", "-"))
+grange.use <- seqnames(grange.counts) %in% standardChromosomes(grange.counts)
+atac_counts <- atac_counts[as.vector(grange.use),]
+annotations <- GetGRangesFromEnsDb(ensdb = edb)
+seqlevelsStyle(annotations) <- 'UCSC'
+genome(annotations) <- "GRCh38"
+
+atac_assay <- CreateChromatinAssay(
+        counts = atac_counts, sep = c(":", "-"), genome = "GRCh38",
+        fragments = "./cellranger_outs/atac_fragments.tsv.gz",
+        annotation = annotations)
+
+## remove the cells that have been filtered out in scRNA data
+experiment.aggregate <- readRDS("scrna.rds")
+atac_assay <- subset(atac_assay, cells = colnames(experiment.aggregate))
+
+experiment.atac <- CreateSeuratObject(
+	atac_assay,
+	assay = "ATAC")
+```
+
+### QC metrics and plots
+
+```{r echo=T, message=F, warning=F}
+## When individual sample per_barcode_metrics.csv is available, the following metrics can be calculated
+#experiment.atac$pct_reads_in_peaks <- experiment.atac$atac_peak_region_fragments / experiment.atac$atac_fragments * 100
+## blacklist regions created by ENCODE project
+experiment.atac$blacklist_ratio <- FractionCountsInRegion(
+        object = experiment.atac,
+        assay = 'ATAC',
+        regions = blacklist_hg38_unified
+        )
+
+experiment.atac <- TSSEnrichment(object = experiment.atac, fast = FALSE)
+
+## scatter plot to easily identify filtering criteria
+DensityScatter(experiment.atac, x = 'nCount_ATAC', y = 'TSS.enrichment', log_x = T, quantiles = T)
+
+d2p <- data.frame(nCount_ATAC = experiment.atac$nCount_ATAC, TSS.enrichment = experiment.atac$TSS.enrichment)
+ggplot(d2p, aes(x = nCount_ATAC, y = TSS.enrichment)) + geom_point(size = 0.1) + coord_trans(x = "log10")
+
+## TSS enrichment plot
+experiment.atac$high.tss <- ifelse(experiment.atac$TSS.enrichment > 3, 'High', 'Low')
+TSSPlot(experiment.atac, group.by = 'high.tss') + NoLegend()
+```
+
+```{r echo=T, message=F, warning=F, eval=F}
+## Nucleosome signal plot
+experiment.atac <- NucleosomeSignal(object = experiment.atac, assay = "ATAC")
+
+experiment.atac$nucleosome_group <- ifelse(experiment.atac$nucleosome_signal > 4, 'NS > 4', 'NS <= 4')
+FragmentHistogram(object = experiment.atac, assay = "ATAC", group.by = NULL, region = "chr1-1-20000000")
 ```
 
 
+```{r echo=F, message=F, warning=F, include=T}
+## Nucleosome signal plot
+experiment.atac <- NucleosomeSignal(object = experiment.atac, assay = "ATAC")
+cells <- colnames(experiment.atac)[c(which(is.infinite(experiment.atac$nucleosome_signal)), which(is.na(experiment.atac$nucleosome_signal)))]
+
+experiment.atac <- experiment.atac[,!(colnames(experiment.atac) %in% cells)]
+
+experiment.atac$nucleosome_group <- ifelse(experiment.atac$nucleosome_signal > 4, 'NS > 4', 'NS <= 4')
+FragmentHistogram(object = experiment.atac, assay = "ATAC", group.by = "nucleosome_group", region = "chr1-1-100000000")
+
+```
+
+### scATAC QC filtering
+
+```{r echo=T, message=F, warning=F}
+experiment.atac <- subset(experiment.atac, subset = nCount_ATAC > 2300 & nCount_ATAC < 40000 & blacklist_ratio < 0.05 & nucleosome_signal < 4 & TSS.enrichment > 3)
+saveRDS(experiment.atac, "scatac.rds")
+```
+
+## Analysis by combining scRNA and scATAC data before clustering
+
+
+```{r echo=T, message=F, warning=F}
+experiment.aggregate <- experiment.aggregate[, colnames(experiment.aggregate) %in% colnames(experiment.atac)]
+atac_assay <- subset(atac_assay, cells = colnames(experiment.atac))
+experiment.aggregate[["ATAC"]] <- atac_assay
+
+VlnPlot(experiment.aggregate, features = c("nCount_ATAC", "nCount_RNA"), ncol = 3, log = T)
+```
+
+### Performing dimensionality reduction on scRNA and scATAC data
+
+
+```{r echo=T, message=F, warning=F, eval=F}
+## dimensionality reduction scRNA
+DefaultAssay(experiment.aggregate) <- "RNA"
+experiment.aggregate <- FindVariableFeatures(experiment.aggregate)
+experiment.aggregate <- RunPCA(experiment.aggregate)
+experiment.aggregate <- RunUMAP(experiment.aggregate,
+                                reduction = "pca", reduction.name = "umap.rna", reduction.key = "rnaUMAP_",
+                                dims = 1:30)
+
+
+## dimensionality reduction scATAC
+DefaultAssay(experiment.aggregate) <- "ATAC"
+experiment.aggregate <- RunTFIDF(experiment.aggregate)
+experiment.aggregate <- FindTopFeatures(experiment.aggregate, min.cutoff = 'q0')
+experiment.aggregate <- RunSVD(experiment.aggregate)
+experiment.aggregate <- RunUMAP(experiment.aggregate,
+                                reduction = 'lsi',
+                                dims = 2:50,
+                                reduction.name = "umap.atac", reduction.key = "atacUMAP_")
+saveRDS(experiment.aggregate, "bimodal.nomalized.rds")
+```
+
+### Clustering scRNA and scATAC data together using weighted nearest neighbor analysis
+
+Weighted nearest neighbor analysis was introduced by the Satija Lab in [2021] (https://www.sciencedirect.com/science/article/pii/S0092867421005833?via%3Dihub). It is a framework to integrate multiple data types that are measured within a cell. It uses a unsupervised approach to learn the cell-specific "weights" for each modality, which will be used in downstream analysis. The workflow was designed to be robust to vast differences in data quality between different modalities and enable multiple downstream analyses using this integrated framework, such as visualization, clustering, trajectory analysis. The ultimate goal is to enable better characterization of cell states. The workflow involves four steps:
+
+    1. Constructing independent k nearest neighbor graphs for both modalities
+    2. Performing with and across-modality prediction
+    3. Calculating cell-specific modality weights
+    4. Calculating a WNN graph
+
+```{r echo=T, message=F, warning=F}
+experiment.aggregate <- readRDS("bimodal.nomalized.rds")
+experiment.aggregate <- FindMultiModalNeighbors(experiment.aggregate, reduction.list = list("pca", "lsi"),
+                                dims.list = list(1:30, 2:50))
+experiment.aggregate <- FindClusters(experiment.aggregate, graph.name = "wsnn", resolution = seq(0.75, 1.5, 0.25), algorithm = 3, verbose = F)
+
+experiment.aggregate <- RunUMAP(experiment.aggregate, nn.name = "weighted.nn",
+                                reduction.name = "umap.wnn", reduction.key = "wnnUMAP_")
+
+```
+
+Let's take a look at the clusters.
+
+```{r echo=T, message=F, warning=F}
+outputs <- lapply(grep("wsnn", colnames(experiment.aggregate@meta.data), value=TRUE), function(res){
+        dimplot <- DimPlot(experiment.aggregate, reduction = "umap.wnn", group.by = res, shuffle = TRUE) +
+                scale_color_viridis_d(option = "turbo") + ggtitle(res)
+        return(list(dimplot=dimplot))
+})
+```
+```{r cluster_by_res, results='asis'}
+for (i in 1:length(outputs)){
+        cat("\n\n\n\n")
+        print(outputs[[i]]$dimplot)
+        cat("\n\n\n\n")
+}
+```
+
+### Automatic cell type annotation using scRNA profile.
+
+```{r echo=T, message=F, warning=F}
+library(HGNChelper)
+library(kableExtra)
+source("https://raw.githubusercontent.com/IanevskiAleksandr/sc-type/master/R/gene_sets_prepare.R")
+# load cell type annotation function
+source("https://raw.githubusercontent.com/IanevskiAleksandr/sc-type/master/R/sctype_score_.R")
+
+db = "https://raw.githubusercontent.com/IanevskiAleksandr/sc-type/master/ScTypeDB_full.xlsx"
+tissues = "Kidney"
+
+gs_list <- gene_sets_prepare(db, tissues)
+
+# get the cell type marker genes' data
+gene.features <- unique(unlist(c(gs_list)))
+#scRNAseqData <- FetchData(experiment.aggregate, assay = "RNA", vars = rownames(experiment.aggregate[["RNA"]]))
+scRNAseqData <- FetchData(experiment.aggregate, assay = "RNA", vars = gene.features, layer = "scale.data")
+colnames(scRNAseqData) <- sapply(colnames(scRNAseqData), function(x){gsub("rna_", "", x)})
+scRNAseqData <- t(scRNAseqData)
+
+## cell type annotation
+cy.max <- sctype_score(scRNAseqData, scaled = TRUE, gs = gs_list$gs_positive, gs2 = gs_list$gs_negative)
+
+cC_results <- do.call(rbind, lapply(unique(experiment.aggregate@meta.data$wsnn_res.0.75), function(cluster){
+        cy.max.cluster <- sort(rowSums(cy.max[,rownames(experiment.aggregate@meta.data[experiment.aggregate@meta.data$wsnn_res.0.75 == cluster, ])]), decreasing = TRUE)
+        head(data.frame(cluster=cluster, type=names(cy.max.cluster), scores=cy.max.cluster, ncells=sum(experiment.aggregate@meta.data$wsnn_res.0.75 == cluster)), 10)
+}))
+
+sctype_scores <- cC_results %>% dplyr::group_by(cluster) %>% dplyr::slice_max(n=1, order_by=scores)
+kable(sctype_scores[,1:3], caption="Initial Cell type assignment", "html") %>% kable_styling("striped")
+
+# set low sc-type score clusters to "unknown"
+sctype_scores$type[as.numeric(as.character(sctype_scores$scores)) < sctype_scores$ncells/4] <- "Unknown"
+kable(sctype_scores[,1:3], caption="Final Cell type assignment", "html") %>% kable_styling("striped")
+
+# label cells with cell type
+experiment.aggregate@meta.data$CellType.wsnn_res.0.75 <- ""
+for (i in unique(sctype_scores$cluster)){
+        celltype <- sctype_scores[sctype_scores$cluster == i,]
+        experiment.aggregate@meta.data$CellType.wsnn_res.0.75[experiment.aggregate@meta.data$wsnn_res.0.75 == i] <- as.character(celltype$type[1])
+}
+DimPlot(experiment.aggregate, reduction = "umap.wnn", label = TRUE, repel = TRUE, group.by = "CellType.wsnn_res.0.75", shuffle = TRUE) +
+        scale_color_viridis_d(option = "turbo") + ggplot2::theme(legend.position="bottom", legend.text=element_text(size=8))
+
+p1 <- DimPlot(experiment.aggregate, reduction = "umap.rna", label = TRUE, repel = TRUE, group.by = "CellType.wsnn_res.0.75", shuffle = TRUE) +
+        scale_color_viridis_d(option = "turbo") + NoLegend()
+
+
+p2 <- DimPlot(experiment.aggregate, reduction = "umap.atac", label = TRUE, repel = TRUE, group.by = "CellType.wsnn_res.0.75", shuffle = TRUE) +
+        scale_color_viridis_d(option = "turbo") + NoLegend()
+
+p3 <- DimPlot(experiment.aggregate, reduction = "umap.wnn", label = TRUE, repel = TRUE, group.by = "CellType.wsnn_res.0.75", shuffle = TRUE) +
+        scale_color_viridis_d(option = "turbo") + NoLegend()
+
+p1 + p2 + p3
+
+```
+
+### Find markers
+
+```{r echo=T, message=F, warning=F}
+Idents(experiment.aggregate) <- "CellType.wsnn_res.0.75"
+DefaultAssay(experiment.aggregate) <- "RNA"
+gene.markers <- FindMarkers(experiment.aggregate, ident.1 = "Hematopoietic cells", only.pos=FALSE, min.pct=0.25, logfc.threshold=0.25)
+kable(gene.markers[1:100,], 'html', align='c') %>% kable_styling() %>% scroll_box(height="500px")
+```
+
+
+### Some visualizations of scRNA and scATAC data
+
+```{r echo=T, message=F, warning=F}
+library(BSgenome.Hsapiens.UCSC.hg38)
+library(ggforce)
+Idents(experiment.aggregate) <- "CellType.wsnn_res.0.75"
+DefaultAssay(experiment.aggregate) <- "ATAC"
+experiment.aggregate <- RegionStats(experiment.aggregate, genome = BSgenome.Hsapiens.UCSC.hg38)
+#experiment.aggregate <- LinkPeaks(experiment.aggregate, peak.assay = "ATAC", expression.assay = "RNA")
+#saveRDS(experiment.aggregate, "linked.rds")
+experiment.aggregate <- readRDS("linked.rds")
+CoveragePlot(experiment.aggregate, region = "AGRN", features = "AGRN", assay = "ATAC", expression.assay = "RNA", links = TRUE, peaks = FALSE, extend.upstream = 500000, extend.downstream = 2000)
+```
+
+
+### Motif analysis
+      
+```{r echo=T, message=F, warning=F}
+library(chromVAR)
+library(JASPAR2020)
+library(TFBSTools)
+library(ggseqlogo)
+
+DefaultAssay <- "ATAC"
+pfm <- getMatrixSet(x = JASPAR2020, opts = list(species = 9606, all_versions = F))
+experiment.aggregate <- AddMotifs(experiment.aggregate, genome = BSgenome.Hsapiens.UCSC.hg38, pfm = pfm)
+
+## Peak markers
+Idents(experiment.aggregate) <- "CellType.wsnn_res.0.75"
+de.peaks <- FindMarkers(experiment.aggregate, ident.1 = "Proximal tubule cells", ident.2 = unique(experiment.aggregate$CellType.wsnn_res.0.75)[6],
+                only.pos = T, test.use = 'LR', min.pct = 0.10, latent.vars = "nCount_ATAC")
+top.de.peaks <- rownames(de.peaks[de.peaks$p_val < 0.005 & de.peaks$pct.1 > 0.3, ])
+
+## Find enriched motifs in the top differential abundant peaks
+enriched.motifs <- FindMotifs(experiment.aggregate, features = top.de.peaks)
+
+## Plot motifs
+MotifPlot(experiment.aggregate, motifs = rownames(enriched.motifs)[1:3])
+```
+
+```{r echo=T, message=F, warning=F}
+# read in scRNA data
+scrna <- readRDS("scrna.rds")
+scrna <- FindVariableFeatures(scrna)
+scrna <- RunPCA(scrna)
+scrna <- FindNeighbors(scrna, reduction = "pca", dims = 1:30)
+scrna <- FindClusters(scrna)
+
+
+# read in scATAC data
+scatac <- readRDS("scatac.rds")
+scatac <- RunTFIDF(scatac)
+scatac <- FindTopFeatures(scatac, min.cutoff = 'q0')
+scatac <- RunSVD(scatac)
+scatac <- FindNeighbors(scatac, reduction = "lsi", dims = 2:30)
+scatac <- FindClusters(scatac, algorithm = 3)
+```
+
+At this point, we can annotate the cell types by using existing scATACSeq datasets that have been annotated with cell types and include cells that are present in the dataset of interest. There are quite a few python packages existing to accomplish this goal: [Cellcano](https://www.nature.com/articles/s41467-023-37439-3), [scATAnno](https://www.biorxiv.org/content/10.1101/2023.06.01.543296v5.full.pdf+html). Seurat, Signac, SingleR all provide functions that can be used to integrating scATAC and scRNA data and achieve cell type annotation. We are going to demonstrate one workflow.
+
+```{r echo=T, message=F, warning=F, eval=FALSE}
+# Signac/Seurat approach
+## Generate gene activities data from scATAC data
+gene.act <- GeneActivity(scatac)
+scatac[['RNA']] <- CreateAssayObject(counts = gene.act) 
+scatac <- NormalizeData(scatac, assay = 'RNA', normalization.method = "LogNormalize")
+scatac <- ScaleData(scatac, assay = 'RNA', vars.to.regress = "nCount_RNA")
+saveRDS(scatac, "scatac.geneact.rds")
+```
+
+```{r echo=T, message=F, warning=F}
+scatac <- readRDS("scatac.geneact.rds")
+anchors <- FindTransferAnchors(reference = scrna, query = scatac, features = VariableFeatures(scrna),
+        reference.assay = "RNA", query.assay = "RNA", reduction = "cca")
+celltypes.atac <- TransferData(anchorset = anchors, refdata = scrna$RNA_snn_res.0.8,
+        weight.reduction = scatac[["lsi"]], dims = 2:30)
+```
+
+
+```{r}
+sessionInfo()
+```
+
+<br>
 
